@@ -16,11 +16,11 @@
 然后通过报错信息跟踪产生错误的代码，并删除
 
 ### 1. 寻找广告线索
-- 如果是弹出整个页面的广告，可以查看Activity，详见 [[#其中包含了当前的Activity以及pid|获取当前Activity]]
+- 如果是弹出整个页面的广告，可以查看Activity，详见 [获取当前Activity](#其中包含了当前的Activity以及pid)
 - 固定在页面的广告就查看Activity的布局信息
 
 ### 2. 详细步骤
-通过[[#其中包含了当前的Activity以及pid|获取当前Activity]]可得：
+通过[获取当前Activity](#其中包含了当前的Activity以及pid)可得：
 ```
 ACTIVITY com.shenyaocn.android.usbcamera/com.google.android.gms.ads.AdActivity
 ```
@@ -28,31 +28,31 @@ ACTIVITY com.shenyaocn.android.usbcamera/com.google.android.gms.ads.AdActivity
 用MT管理器打开 `classes.dex`，删除 `/com/google.android/gms/ads` 文件夹
 保存，运行，得到报错信息
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122085416763.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122085416763.png)
 
 找到 `com.shenyaocn.android.usbcamera.BaseAppActivity.I` 方法
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122085555866.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122085555866.png)
 
 看不懂 smali 的话就右上角——转换成java
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122085721313.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122085721313.png)
 
 因为进行了 `try-catch` ，所以直接删也不会产生影响 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122085902706.png|200]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122085902706.png)
 （删除了方法体之后）
 
 再次打包运行，
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122090058960.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122090058960.png)
 
 找到 `com.shenyaocn.android.usbcamera.BaseAppActivity.G` 方法
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122090202411.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122090202411.png)
 
 是获取 `AdView` 的，和广告相关的东西，这里让他直接返回null就行
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122090305131.png|500]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231122090305131.png)
 
 再次打包运行，成功启动，广告也已经消失
 
@@ -97,50 +97,50 @@ dumpsys activity top | grep "com.shenyaocn.android.usbcamera" | grep "ACTIVITY" 
 
 此时安装并启动该app，因为找不到对应节点信息，在获取该节点的时候会抛出空指针，如果该app处理了空指针异常，那皆大欢喜，如果因为异常而崩溃，此时根据[[用MT管理器和adb工具去除谷歌广告#附：通过崩溃堆栈信息找到对应字节码|堆栈信息]]找到对应smali代码，删除即可。
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121094743796.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121094743796.png)
 
 打开 `classes.dex` - `com.shenyaocn.android.usbcamera.MainActivity`
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121124423935.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121124423935.png)
 
 `0x7f090045` 下面会用到
 删除：
 `invoke-virtual {v2, v6}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V`
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/屏幕截图 2023-11-21 124035.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/屏幕截图 2023-11-21 124035.png)
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121124532288.png|500]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121124532288.png)
 
 删除该代码（错误的，该代码并没有使用v4）
 `invoke-virtual {v1, v15}, Landroid/view/View;->setVisibility(I)V`
 跟着 `goto/16 :goto_37a` 往下走，并根据转换成的java文件继续分析
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121131217140.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121131217140.png)
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121131038974.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121131038974.png)
 
 就是这了，但是观察到下面还有一个
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121131255407.png|500]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121131255407.png)
 
 再继续寻找，跟着逻辑往下，就找到了
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/屏幕截图 2023-11-21 132459.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/屏幕截图 2023-11-21 132459.png)
 全部删除，完成
 启动，崩溃，显然，我们需要删除与 `0x7f090045` 相关的所有代码，搜索
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121133157050.png|400]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121133157050.png)
 
 已经完成一个了。
 
 #### m0
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121133304096.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121133304096.png)
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121133411847.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121133411847.png)
 
 删除 23 - 31 即可
 
 #### MainActivity
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121133913135.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121133913135.png)
 好好好，有处理空指针的操作
 
 **OK 了**
@@ -161,7 +161,7 @@ ACTIVITY com.shenyaocn.android.usbcamera/com.google.android.gms.ads.AdActivity
     android:exported="false"/>
 ```
 
-![[用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121141006219.png]]
+![](用MT管理器和adb工具去除谷歌广告.md_Attachments/用MT管理器和adb工具去除谷歌广告-20231121141006219.png)
 
 把 `com.shenyaocn.android.usbcamera.BaseAppActivity.H` 的方法体删掉即可
 
